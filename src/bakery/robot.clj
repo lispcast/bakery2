@@ -616,8 +616,8 @@
         remaining (-> state :remaining-orders (get-in [order-id :items contents] 0))]
     (if (or (nil? remaining)
             (not (pos? remaining)))
-      (update-in state [:problems         order-id        contents] inc)
-      (update-in state [:remaining-orders order-id :items contents] dec))))
+      (update-in state [:problems         order-id        contents] (fnil inc 0))
+      (update-in state [:remaining-orders order-id :items contents] (fnil dec 0)))))
 
 (defn delivery
   "Notify the delivery bot that something is ready to deliver"
