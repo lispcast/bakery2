@@ -22,7 +22,7 @@
                     :loaded {}
                     :prep-stock initial-prep-stock
                     :remaining-orders {}
-                    :problems []})
+                    :problems {}})
 
 (defonce state (atom initial-state))
 
@@ -580,6 +580,7 @@
         orders-by-id (into {} (map (juxt :orderid identity)) orders)]
     (swap! state (fn [state]
                    (-> state
+                       (update :orderids (fnil into #{}) (keys orders-by-id))
                        (assoc :remaining-orders orders-by-id)
                        (assoc :over-baked {}))))
     (dorun orders)
@@ -591,7 +592,7 @@
   (get-morning-orders* [:cake :cookies] 25))
 
 (defn get-morning-orders-day3
-  "Get a new list of baking orders including brownies and lemon bars."
+  "Get a new list of baking orders including brownies and lemon squares."
   []
   (get-morning-orders* [:cake :cookies :brownies :lemon-squares] 25))
 
@@ -612,10 +613,11 @@
 (defn- deliver-1-*
   [state order-id rack-id]
   (let [contents (-> state :cooling-rack (get rack-id))
-        remaining (-> state :remaining-orders (get-in [order-id :items contents]))]
-    (if (pos? remaining)
-      (update-in state [:remaining-orders order-id :items contents] dec)
-      (update-in state [:problems         order-id        contents] inc))))
+        remaining (-> state :remaining-orders (get-in [order-id :items contents] 0))]
+    (if (or (nil? remaining)
+            (not (pos? remaining)))
+      (update-in state [:problems         order-id        contents] inc)
+      (update-in state [:remaining-orders order-id :items contents] dec))))
 
 (defn delivery
   "Notify the delivery bot that something is ready to deliver"
@@ -625,10 +627,10 @@
                            (deliver-1-* state (:orderid receipt) rack-id))
                          state
                          (:rackids receipt))))
-  (doseq [[product count] (-> state deref :problems (get (:order-id receipt)))]
-    (println "Baked too many" product "for order" (:order-id receipt) "by" count "."))
-  (when (zero? (order-items (-> state deref :remaining-orders (get (:order-id receipt)))))
-    (println "Order" (:order-id receipt) "is complete!"))
+  (doseq [[product count] (-> state deref :problems (get (:orderid receipt)))]
+    (println "Baked too many" product "for order" (:orderid receipt) "by" count "."))
+  (when (zero? (order-items (-> state deref :remaining-orders (get (:orderid receipt)))))
+    (println "Order" (:orderid receipt) "is complete!"))
   (when (complete? (-> state deref :remaining-orders))
     (println "All morning orders are complete!"))
   :ok)
