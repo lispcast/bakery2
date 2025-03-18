@@ -33,7 +33,7 @@
 (def _squeezables        #{:lemon})
 (def _scoopables         #{:flour :almond-milk :sugar :coconut-oil :cocoa :ganache :corn-starch :baking-powder})
 (def _dry-ingredients    #{:corn-starch :flour :cocoa :baking-powder})
-(def _wet-ingredients    #{:almond-milk :sugar :coconut-oil :ganache :lemon-juice})
+(def _wet-ingredients    #{:almond-milk :sugar :cocoa :coconut-oil :ganache :lemon-juice})
 (def _locations          #{:prep-area :fridge :pantry})
 
 
@@ -250,7 +250,8 @@
     (= :empty (-> state deref :bowls bowl :state))
     (error "The" (name bowl) "bowl is empty.")
 
-    (= :unmixed (-> state deref :bowls bowl :state))
+    (and (= :unmixed (-> state deref :bowls bowl :state))
+         (> (count (-> state deref :bowls bowl :ingredients)) 1))
     (error "The" (name bowl) "bowl is unmixed, you should mix it first (using the mix-bowl function).")
 
     (= bowl destination)
@@ -271,7 +272,8 @@
 
     :else ;; destination is a bowl
     (cond
-      (= :unmixed (-> state deref :bowls destination :state))
+      (and (= :unmixed (-> state deref :bowls destination :state))
+           (> (count (-> state deref :bowls destination :ingredients)) 1))
       (error "The" (name destination) "bowl is unmixed, you should mix it first (using the mix-bowl function).")
 
       :else
@@ -322,8 +324,7 @@
 
    :brownies {:ingredients {:flour 2
                             :almond-milk 1
-                            :sugar 1
-                            :cocoa 1}
+                            :ganache 2}
               :time 35}
 
    :lemon-squares {:ingredients {:flour 1
