@@ -367,7 +367,7 @@
 
     (= :empty (-> state deref :pan :state))
     (error "There's nothing in the pan!"
-           "Use (pour-into-pan) to transfer from the bowl to the pan.")
+           "Use pour-bowl to transfer from the bowl to the pan.")
 
     :else
     (do
@@ -388,7 +388,7 @@
     (error "I can only cool the pan at the prep area. I am at the" (-> state deref :location))
 
     (= :empty (-> state deref :pan :state))
-    (error "There's nothing in the pan! Use (pour-into-pan) to transfer from the bowl to the pan.")
+    (error "There's nothing in the pan! Use pour-bowl to transfer from the bowl to the pan.")
 
     (not= :baked (-> state deref :pan :state))
     (error "You don't need to cool the pan. It's not baked yet. Use (bake-pan <minutes>) to bake it.")
@@ -648,7 +648,7 @@
   (println "dump               Add the ingredient you are holding to a bowl.")
   (println "squeeze            Squeeze the lemon you are holding to juice it.")
   (println "mix-bowl           Mix the ingredients in the bowl.")
-  (println "pour-into-pan      Pour the contents of the bowl into the pan.")
+  (println "pour-bowl          Pour the contents of one bowl into another bowl or the pan.")
   (println "bake-pan           Put the pan in the oven for a certain number of minutes.")
   (println "cool-pan           After baking, put the pan on the cooling racks to cool.")
   (println "                     Returns the id of the cooling rack.")
